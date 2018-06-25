@@ -4,7 +4,7 @@
 #include <PubSubClient.h>
 
 const char* ssid = "plecto";
-const char* password = "marius87";
+const char* password = "**";
 const char* mqtt_server = "broker.mqtt-dashboard.com";
 const char* topict = "temp";
 const char* topicm = "moisture";
