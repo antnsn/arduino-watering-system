@@ -1,54 +1,42 @@
+class Plant {
+  int sensorPin;
+  int pumpPin;
 
-class plant
-{
-   int sensorPin;
-   int pumpPin;
-
-  public:
-  plant(int sensPin, int pPin)
-  {
+public:
+  Plant(int sensPin, int pPin) {
     sensorPin = sensPin;
     pinMode(sensorPin, INPUT);
-  
     pumpPin = pPin;
     pinMode(pumpPin, OUTPUT);
- 
   }
 
-  void status()
-  {
-    if(sensorPin == LOW)
-    {
+  void waterPlant() {
+    if (digitalRead(sensorPin) == LOW) {
       digitalWrite(pumpPin, HIGH);
-    }
-    else
-    {
+    } else {
       digitalWrite(pumpPin, LOW);
     }
   }
 };
 
-plant plant1(A0, 2);
-plant plant2(A1, 3);
-plant plant3(A2, 4);
-plant plant4(A3, 5);
-plant plant5(A4, 6);
-plant plant6(A5, 7);
-plant plant7(A6, 8);
-plant plant8(A7, 9);
+const int numPlants = 8;
+Plant plants[numPlants] = {
+  Plant(A0, 2),
+  Plant(A1, 3),
+  Plant(A2, 4),
+  Plant(A3, 5),
+  Plant(A4, 6),
+  Plant(A5, 7),
+  Plant(A6, 8),
+  Plant(A7, 9)
+};
 
-
-void setup() {}
+void setup() {
+  // Add any setup code if needed
+}
 
 void loop() {
-
-  plant1.status();
-  plant2.status();
-  plant3.status();
-  plant4.status();
-  plant5.status();
-  plant6.status();
-  plant7.status();
-  plant8.status();
-  
+  for (int i = 0; i < numPlants; i++) {
+    plants[i].waterPlant();
+  }
 }
