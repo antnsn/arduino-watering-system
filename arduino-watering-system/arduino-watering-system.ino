@@ -1,131 +1,68 @@
+// Define constants for the number of plants
+const int numPlants = 8;
 
+// Define a struct to represent each plant
+struct Plant {
+  String name;
+  int relayPin;
+  int sensorPin;
+};
 
-String plant1 = "plant nr:1";
-int relay1 = 2;
-int sensor1 = A0;  
-int sensorval1 = 0;
+// Create an array of Plant structs for each plant
+Plant plants[numPlants] = {
+  {"plant nr:1", 2, A0},
+  {"plant nr:2", 3, A1},
+  {"plant nr:3", 4, A2},
+  {"plant nr:4", 5, A3},
+  {"plant nr:5", 6, A4},
+  {"plant nr:6", 7, A5},
+  {"plant nr:7", 8, A6},
+  {"plant nr:8", 9, A7}
+};
 
-String plant2 = "plant nr:2";
-int relay2 = 3;
-int sensor2 = A1;  
-int sensorval2 = 0;
+// Initialize variables for sensor values and watering thresholds
+int sensorValues[numPlants] = {0};
+int wateringThreshold = 35;  // Adjust as needed
 
-String plant3 = "plant nr:3";
-int relay3 = 4;
-int sensor3 = A2; 
-int sensorval3 = 0;
+// Function to convert sensor values to percentage
+int convertToPercent(int value) {
+  return map(value, 845, 220, 0, 100);
+}
 
-String plant4 = "plant nr:4";
-int relay4 = 5;
-int sensor4 = A3; 
-int sensorval4 = 0;
-
-String plant5 = "plant nr:5";
-int relay5 = 6;
-int sensor5 = A4; 
-int sensorval5 = 0;
-
-String plant6 = "plant nr:6";
-int relay6 = 7;
-int sensor6 = A5; 
-int sensorval6 = 0;
-
-String plant7 = "plant nr:7";
-int relay7 = 8;
-int sensor7 = A6; 
-int sensorval7 = 0;
-
-String plant8 = "plant nr:8";
-int relay8 = 9;
-int sensor8 = A7; 
-int sensorval8 = 0;
-
-
-int percent = 0;
-
+// Function to control watering
+void waterPlant(int relayPin, int sensorPin, String plantName) {
+  Serial.println(plantName + " - Moisture: " + convertToPercent(sensorValues[relayPin - 2]) + "%");
+  digitalWrite(relayPin, LOW);   // Turn on the pump
+  delay(3000);                    // Water for 3 seconds
+  digitalWrite(relayPin, HIGH);  // Turn off the pump
+  delay(1000);                    // Wait for 1 second
+}
 
 void setup() {
-Serial.begin(9600);      // open the serial port at 9600 bps:    
+  Serial.begin(9600);  // Initialize serial communication
 
-  //plant 1
-  pinMode(relay1, OUTPUT); digitalWrite (relay1, HIGH); pinMode(sensor1, INPUT);
-
-  //plant 2
-  pinMode(relay2, OUTPUT); digitalWrite (relay2, HIGH); pinMode(sensor2, INPUT);
-
-  //plant 3
-  pinMode(relay3, OUTPUT); digitalWrite (relay3, HIGH); pinMode(sensor3, INPUT);
-
-  //plant 4
-  pinMode(relay4, OUTPUT); digitalWrite (relay4, HIGH); pinMode(sensor4, INPUT);
-
-  //plant 5
-  pinMode(relay5, OUTPUT); digitalWrite (relay5, HIGH); pinMode(sensor5, INPUT);
-
-  //plant 6
-  pinMode(relay6, OUTPUT); digitalWrite (relay6, HIGH); pinMode(sensor6, INPUT);
-
-  //plant 7
-  pinMode(relay7, OUTPUT); digitalWrite (relay7, HIGH); pinMode(sensor7, INPUT);
-
-  //plant 8
-  pinMode(relay8, OUTPUT); digitalWrite (relay8, HIGH); pinMode(sensor8, INPUT);
-  
-
-  
-
+  // Initialize pins and relay states for each plant
+  for (int i = 0; i < numPlants; i++) {
+    pinMode(plants[i].relayPin, OUTPUT);
+    digitalWrite(plants[i].relayPin, HIGH); // Turn off pumps initially
+    pinMode(plants[i].sensorPin, INPUT);
+  }
 }
 
 void loop() {
+  // Read sensor values for each plant
+  for (int i = 0; i < numPlants; i++) {
+    sensorValues[i] = analogRead(plants[i].sensorPin);
+  }
 
-sensorval1 = analogRead(sensor1);
-sensorval2 = analogRead(sensor2);
-sensorval3 = analogRead(sensor3);
-sensorval4 = analogRead(sensor4);
-sensorval5 = analogRead(sensor5);
-sensorval6 = analogRead(sensor6);
-sensorval7 = analogRead(sensor7);
-sensorval8 = analogRead(sensor8);
+  // Water plants based on moisture levels
+  for (int i = 0; i < numPlants; i++) {
+    if (convertToPercent(sensorValues[i]) <= wateringThreshold) {
+      waterPlant(plants[i].relayPin, plants[i].sensorPin, plants[i].name);
+    } else {
+      digitalWrite(plants[i].relayPin, HIGH); // Turn off the pump
+    }
+  }
 
-
-    percent = convertToPercent(sensorval1);
-    if (percent > 35) {digitalWrite(relay1, HIGH);} else { watering(relay1,sensor1, plant1 );}
-    percent = convertToPercent(sensorval2);
-    if (percent > 35) {digitalWrite(relay2, HIGH);} else { watering(relay2,sensor2, plant2 );}
-    percent = convertToPercent(sensorval3);
-    if (percent > 35) {digitalWrite(relay3, HIGH);} else { watering(relay3,sensor3, plant3 );}
-    percent = convertToPercent(sensorval4);
-    if (percent > 35) {digitalWrite(relay4, HIGH);} else { watering(relay4,sensor4, plant4 );}
-    percent = convertToPercent(sensorval5);
-    if (percent > 35) {digitalWrite(relay5, HIGH);} else { watering(relay5,sensor5, plant5 );}
-    percent = convertToPercent(sensorval6);
-    if (percent > 35) {digitalWrite(relay6, HIGH);} else { watering(relay6,sensor6, plant6 );}
-    percent = convertToPercent(sensorval7);
-    if (percent > 35) {digitalWrite(relay7, HIGH);} else { watering(relay7,sensor7, plant7 );}
-    percent = convertToPercent(sensorval8);
-    if (percent > 35) {digitalWrite(relay8, HIGH);} else { watering(relay8,sensor8, plant8 );}
-
-    delay(36000); 
+  delay(3600000); // Delay for 1 hour (adjust as needed)
 }
-
- int convertToPercent(int value)
-{
-  int percentValue = 0;
-  percentValue = map(value, 845, 220, 0, 100);
-  return percentValue;
-} 
-
-int watering(int value, int value2, String value3)
-{
-
-
-  Serial.println(value3 +" - Moisture: "+ percent +"%" );
-  
-  digitalWrite(value, LOW);
-    delay(3000);
-  digitalWrite(value, HIGH);
-    delay(1000);
-    
-}
-
-
